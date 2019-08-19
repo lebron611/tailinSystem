@@ -1,0 +1,163 @@
+﻿@model ResponsiveFileManagerMVC.Models.BrowseFileModel
+
+@{
+    ViewBag.Title = "檔案平台";
+    ViewBag.selectLink = "";
+}
+<script type="text/javascript">
+    function createFolder(link) {
+        var virtualLink = link.getAttribute('id');//target directory
+        console.log(virtualLink);
+        //$("#folderName").val()
+    }
+</script>
+
+<script type="text/javascript" src="~/Scripts/jquery-2.2.4.js">
+    $(document).on("click", ".imageLink", function () {
+        var linkId = $(this).data('id');
+        console.log(linkId);
+    });
+</script>
+
+<script type="text/javascript">
+    function preview(link) {
+        var virtualLink = link.getAttribute("data-id");
+        var path = "../" + virtualLink.substring(virtualLink.indexOf("生")).replace(/\\/g, "/");
+        var display = document.getElementById("preview");
+        display.src = path;
+        document.getElementById("selectFile").value = "~/" + virtualLink.substring(virtualLink.indexOf("生")).replace(/\\/g, "/");
+    }
+</script>
+
+<script type="text/javascript">
+    function clearText() {
+        document.getElementById('searchName').value = '';
+    }
+</script>
+
+<h2>
+    @ViewBag.fileName
+    @Html.ActionLink("上傳檔案", "UploadFile", new { uploadLink = Model.DirectoryInfo.FullName, fileName = Model.DirectoryInfo.Name }, new { @class = "btn btn-primary" })
+    @Html.ActionLink("新增資料夾", "#", new { newLink = Model.DirectoryInfo.FullName }, new { @data_id = Model.DirectoryInfo.FullName, @data_target = "#FolderModal", @data_toggle = "modal", @class = "btn btn-primary" })
+</h2>
+<div class="modal" id="FolderModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+                <h4>新增資料夾</h4>
+            </div>
+            <div class="modal-body" style="height:100px;width:150px;">
+                <p style="position:fixed;top:50%;transform:translate(0%,-50%);">
+                    資料夾名稱  : @Html.TextBox("folderName", "", new { @id = "folderName" })
+                </p>
+            </div>
+            <div class="modal-footer">
+                @Html.ActionLink("建立資料夾", "ViewFiles", new { newLink = Model.DirectoryInfo.FullName }, new { @id = Model.DirectoryInfo.FullName, onclick = "this.href += '&folderName=' + document.getElementById('folderName').value;document.getElementById('folderName').value = ''",@class="btn btn-primary" })
+                <button class="btn btn-primary" data-dismiss="modal">關閉</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@using (Html.BeginForm("ViewFiles", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <p>
+        檔案搜尋  : @Html.TextBox("searchName", "", new { @id = "searchName" })
+        @Html.Hidden("newLink", Model.DirectoryInfo.FullName)
+        @Html.Hidden("selectFile", "")
+        <input type="submit" value="搜尋" class="btn btn-primary" />
+        @if (ViewBag.isSearch)
+        {
+            <input type="submit" value="取消搜尋" id="clearmed" onclick="clearText();" class="btn btn-small" />
+        }
+    </p>
+}
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayName("檔案名稱")
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var fName in Model.FileInfo)
+    {
+        var name = fName.Name;
+        var extension = fName.Extension.Replace(".", "");
+        <tr>
+            <td>
+                @if (fName.Attributes.ToString() != "Directory")
+                {
+                    if (System.IO.File.Exists(Request.MapPath("~/Image/Icons/" + extension + ".png")))
+                    {
+                        <img src="~/Image/Icons/@(extension).png" />
+                    }
+                    else
+                    {
+                        <img src="~/Image/Icons/_blank.png" />
+                    }
+                }
+                else
+                {
+                    <img src="~/Image/Icons/dir.png" />
+                }
+                @if (extension == "png" || extension == "jpg")
+                {
+                    @Html.ActionLink(name, "#", new { newLink = fName.FullName }, new { @data_id = fName.FullName, @data_target = "#MyModal", @data_toggle = "modal", @onclick = "preview(this);" })
+                    <div class="modal" id="MyModal" role="dialog">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button class="close" data-dismiss="modal">&times;</button>
+                                    <h4>預覽</h4>
+                                </div>
+                                <div class="modal-body" style="height:50vh;width:100vw;">
+                                    <img id="preview" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);" src="@Url.Content("~/" + fName.FullName.Substring(fName.FullName.IndexOf("生")))" />
+                                </div>
+                                <div class="modal-footer">
+                                    @Html.ActionLink("下載", "ViewFiles", new { newLink = fName.FullName }, new { @class = "btn btn-primary" })
+                                    <button class="btn btn-primary" data-dismiss="modal">關閉</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    @Html.ActionLink(name, "ViewFiles", new { newLink = fName.FullName })
+                }
+            </td>
+            @if (this.User.IsInRole("admin"))
+            {
+                <td>
+                    @Html.ActionLink("刪除", "DeleteFile", new { name = fName.Name, path = fName.FullName, folderName = Model.DirectoryInfo.FullName })
+                </td>
+            }
+        </tr>
+    }
+
+</table>
+
+@if (Model.DirectoryInfo.Parent.Name != "生產資訊" && !ViewBag.isSearch)
+{
+    @Html.ActionLink("返回", "ViewFiles", new { newLink = Model.DirectoryInfo.Parent.FullName }, new { @class = "btn btn-primary" })
+}
+else if (!ViewBag.isSearch)
+{
+    @Html.ActionLink("返回", "Index", new { newLink = Model.DirectoryInfo.Parent.FullName }, new { @class = "btn btn-primary" })
+}
+
+@if (ViewBag.needFolderName == true)
+{
+    TempData["needFolderName"] = "<script>alert('空白的資料夾名稱，請重新操作。')</script>";
+    @Html.Raw(TempData["needFolderName"])
+    ViewBag.needFolderName = false;
+}
+else if (ViewBag.duplicateFolder == true)
+{
+    TempData["duplicateFolder"] = "<script>alert('資料夾已存在，請重新操作。')</script>";
+    @Html.Raw(TempData["duplicateFolder"])
+    ViewBag.duplicateFolder = false;
+}

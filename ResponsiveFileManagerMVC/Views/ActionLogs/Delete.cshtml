@@ -1,0 +1,80 @@
+﻿@model ResponsiveFileManagerMVC.Models.ActionLog
+
+@{
+    ViewBag.Title = "確認刪除紀錄";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+    <h2>確認刪除紀錄</h2>
+
+<h3>是否確認刪除該操作紀錄?</h3>
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayName("員工工號")
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Operator)
+        </dd>
+
+        <dt>
+            @Html.DisplayName("操作起始頁面")
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Refer)
+        </dd>
+
+        <dt>
+            @Html.DisplayName("操作結束頁面")
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Destination)
+        </dd>
+
+        <dt>
+            @Html.DisplayName("操作方法")
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Method)
+        </dd>
+
+        <dt>
+            @Html.DisplayName("手機登入")
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.MobleDevices)
+        </dd>
+
+        <dt>
+            @Html.DisplayName("IP位址")
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.IPAddress)
+        </dd>
+
+        <dt>
+            @Html.DisplayName("操作時間")
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.RequestTime)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="確認刪除" class="btn btn-default" /> |
+            @Html.ActionLink("返回", "Index")
+        </div>
+    }
+</div>

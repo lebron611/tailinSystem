@@ -1,0 +1,64 @@
+﻿
+@model IEnumerable< ResponsiveFileManagerMVC.Models.Staff >
+@{
+    ViewBag.Title = "員工管理";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>員工管理</h2>
+
+<p>
+    @Html.ActionLink("建立新帳號", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink" })
+</p>
+
+@using (Html.BeginForm())
+{
+<p>
+    工號搜尋  : @Html.TextBox("SearchId")
+    <input type="submit" value="搜尋" />
+</p>
+}
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayName("員工工號")
+        </th>
+        <th>
+            @Html.DisplayName("員工姓名")
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.StaffId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StaffName)
+            </td>
+            <td>
+                @Html.ActionLink("編輯", "Edit", new { id = item.Id }) |
+                @Html.ActionLink("詳細資料", "Details", new { id = item.Id }) |
+                @Html.ActionLink(
+                       linkText: "變更密碼",
+                       actionName: "SetPassword",
+                       controllerName: "Manage",
+                       routeValues: new
+                       {
+                           id = item.StaffId
+
+                            },
+                       htmlAttributes: null
+                  ) |
+                @if (item.StaffId != "admin")
+                {
+                    @Html.ActionLink("刪除", "Delete", new { id = item.Id })
+                }
+            </td>
+        </tr>
+    }
+
+</table>

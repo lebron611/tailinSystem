@@ -1,0 +1,62 @@
+﻿@model ResponsiveFileManagerMVC.Models.FileModel
+
+@{
+    ViewBag.Title = "UploadFile";
+}
+
+<h2>@Model.fileName</h2>
+
+
+@using (Html.BeginForm("UploadFile", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.files, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.files, "", new { @type = "file", @multiple = "multiple" })
+                @Html.ValidationMessageFor(model => model.files, "", new { @class = "text-danger" })
+                @if (Model.filePath != null)
+                {
+                    @Html.Hidden("uploadLink", Model.filePath)
+                    @Html.Hidden("fileName", Model.fileName)
+                }
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="上傳" class="btn btn-primary" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10 text-success">
+                @if (ViewBag.UploadStatus == "success")
+                {
+                    TempData["success"] = "<script>alert('上傳成功。')</script>";
+                    @Html.Raw(TempData["success"])
+                    Response.Redirect(Url.Action("ViewFiles", new { newLink = Model.filePath }));
+                }
+            </div>
+        </div>
+
+    </div>
+}
+
+<div>
+    @Html.ActionLink("返回", "ViewFiles", new { newLink = Model.filePath }, new { @class = "btn btn-primary" })
+</div>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
+@if (ViewBag.UploadStatus == "exist")
+{
+    TempData["exist"] = "<script>alert('該路徑下已有相同檔案，請重新操作。')</script>";
+    @Html.Raw(TempData["exist"])
+    ViewBag.UploadStatus = "";
+}
+
+

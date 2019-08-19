@@ -1,0 +1,83 @@
+﻿@model ResponsiveFileManagerMVC.Models.BrowseFileModel
+
+@{
+    ViewBag.Title = "檔案平台";
+}
+<style>
+    .grid-container {
+        display: grid;
+        grid-template-columns: auto auto auto;
+        grid-gap: 20px;
+        padding: 60px;
+    }
+
+        .grid-container > div {
+            background-color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            padding: 20px 0;
+            font-size: 20px;
+            height: 200px;
+            width: 300px
+        }
+</style>
+<script type="text/javascript">
+    function clearText() {
+        document.getElementById('searchName').value = '';
+    }
+</script>
+<script type="text/javascript">
+    $(function () {
+        $('#previewDocumentDialog').dialog({
+            autoOpen: false,
+            resizable: false,
+            title: 'Preview',
+            modal: true,
+            width: 400,
+            height: 500,
+            open: function(event, ui) {
+                //Load the PreviewWordDocument action which will return a partial view called _PreviewWordDocument
+                $(this).load("@Url.Action("PreviewWordDocument")"); //add parameters if necessary
+            },
+            buttons: {
+                "Close": function () {
+                    $(this).dialog("close");
+                }
+            }
+        });
+
+        // an event click for you preview link to open the dialog
+        $('#previewLink').click(function () {
+            $('#previewDocumentDialog').dialog('open');
+        });
+    });
+</script>
+@Html.Hidden("newLink", Model.DirectoryInfo.FullName)
+<div class="grid-container">
+    @foreach (var fName in Model.FileInfo)
+    {
+    <div>
+        @if (fName.Attributes.ToString() != "Directory")
+        {
+            var name = fName.Name;
+            var extension = fName.Extension.Replace(".", "");
+            <img src="~/Image/Icons/@(extension).png" />
+            <br />
+            @Html.ActionLink(name, "ViewFiles", new { newLink = fName.FullName })
+        }
+        else
+        {
+            var name = fName.Name;
+            var extension = fName.Extension.Replace(".", "");
+            <img src="~/Image/Icons/home.png" />
+            <br />
+            @Html.ActionLink(name, "ViewFiles", new { newLink = fName.FullName })
+        }
+    </div>
+    }
+</div>
+
+
+@if (Model.DirectoryInfo.Name != "生產資訊")
+{
+    @Html.ActionLink("返回", "ViewFiles", new { newLink = Model.DirectoryInfo.Parent.FullName })
+}

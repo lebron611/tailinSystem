@@ -1,0 +1,18 @@
+﻿@model ResponsiveFileManagerMVC.Models.PreviewImage
+@{
+    ViewBag.Title = "圖片預覽";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+</head>
+<body>
+    <div>
+        <img src="@Url.Content(Model.ImagePath)" />
+    </div>
+</body>
+</html>
